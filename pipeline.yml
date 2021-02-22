@@ -7,7 +7,7 @@ Parameters:
     Default: 6-cicd
   GitHubToken:
     Type: String
-    Default: e013147035e30ab7657cce1d8f29cc2f57361ea4
+    Default: ecb8baab900a35f4df0fbf649c40f5c5468e29cc
     NoEcho: true
   GitHubUser:
     Type: String
