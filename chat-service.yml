@@ -137,11 +137,13 @@ Resources:
     Properties:
       HealthCheckIntervalSeconds: 6
       HealthCheckPath: /
+      Matcher:
+        HttpCode: 301
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
       TargetType: ip
-      Name: !Ref 'ServiceName'
+      Name: !Join ['-', [!Ref 'EnvironmentName', !Ref 'ServiceName']]
       Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 2
@@ -154,6 +156,9 @@ Resources:
         Fn::ImportValue:
           !Join [':', [!Ref 'EnvironmentName', 'VPCId']]
 
+  # Create rules to forward both HTTP and HTTPS traffic to the service's
+  # target group. The service itself will handle redirecting HTTP traffic
+  # to HTTPS
   HTTPRule:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     Properties:
@@ -165,7 +170,7 @@ Resources:
           Values: [!Ref 'Path']
       ListenerArn:
         Fn::ImportValue:
-          !Join [':', [!Ref 'EnvironmentName', 'PublicListener']]
+          !Join [':', [!Ref 'EnvironmentName', 'PublicListenerHTTP']]
       Priority: !Ref 'Priority'
  
   # Enable autoscaling for this service
