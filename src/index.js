@@ -31,18 +31,18 @@ io.set('heartbeat interval', 4000);
 
 var port = process.env.PORT || 3000;
 
-server.listen(port, function() {
-  console.log('Server listening at port %d', port);
+server.listen(port, function () {
+  console.log('- Server listening at port %d', port);
 });
 
 // Routing
 app.use(express.static(path.join(__dirname, 'public')));
 
-io.on('connection', function(socket) {
+io.on('connection', function (socket) {
   // Initially the socket starts out as not authenticated
   socket.authenticated = false;
 
-  Presence.list(function(users) {
+  Presence.list(function (users) {
     // Tell the socket how many users are present.
     io.to(socket.id).emit('presence', {
       numUsers: users.length
@@ -50,7 +50,7 @@ io.on('connection', function(socket) {
   });
 
   // when the client emits 'new message', this listens and executes
-  socket.on('new message', async function(data, callback) {
+  socket.on('new message', async function (data, callback) {
     if (!socket.authenticated) {
       // Don't allow people not authenticated to send a message
       return callback('Can\'t send a message until you are authenticated');
@@ -82,7 +82,7 @@ io.on('connection', function(socket) {
     return callback(null, messageBody);
   });
 
-  socket.on('message list', async function(room, callback) {
+  socket.on('message list', async function (room, callback) {
     var messages;
 
     try {
@@ -94,7 +94,7 @@ io.on('connection', function(socket) {
     return callback(null, messages);
   });
 
-  socket.conn.on('heartbeat', function() {
+  socket.conn.on('heartbeat', function () {
     if (!socket.authenticated) {
       // Don't start counting as present until they authenticate.
       return;
@@ -106,7 +106,7 @@ io.on('connection', function(socket) {
   });
 
   // Client wants a list of rooms
-  socket.on('room list', function(callback) {
+  socket.on('room list', function (callback) {
     if (!_.isFunction(callback)) {
       return;
     }
@@ -148,7 +148,7 @@ io.on('connection', function(socket) {
   });
 
   // Client wants to create a new account
-  socket.on('create user', async function(details, callback) {
+  socket.on('create user', async function (details, callback) {
     if (!_.isFunction(callback)) {
       return;
     }
@@ -195,7 +195,7 @@ io.on('connection', function(socket) {
     });
     socket.present = true;
 
-    Presence.list(function(users) {
+    Presence.list(function (users) {
       socket.emit('login', {
         numUsers: users.length
       });
@@ -215,7 +215,7 @@ io.on('connection', function(socket) {
   });
 
   // Client wants to authenticate a user
-  socket.on('authenticate user', async function(details, callback) {
+  socket.on('authenticate user', async function (details, callback) {
     if (!_.isFunction(callback)) {
       return;
     }
@@ -262,7 +262,7 @@ io.on('connection', function(socket) {
     });
     socket.present = true;
 
-    Presence.list(function(users) {
+    Presence.list(function (users) {
       socket.emit('login', {
         numUsers: users.length
       });
@@ -281,7 +281,7 @@ io.on('connection', function(socket) {
     });
   });
 
-  socket.on('anonymous user', function(callback) {
+  socket.on('anonymous user', function (callback) {
     if (!_.isFunction(callback)) {
       return;
     }
@@ -296,7 +296,7 @@ io.on('connection', function(socket) {
     });
     socket.present = true;
 
-    Presence.list(function(users) {
+    Presence.list(function (users) {
       socket.emit('login', {
         numUsers: users.length
       });
@@ -316,7 +316,7 @@ io.on('connection', function(socket) {
   });
 
   // when the client emits 'typing', we broadcast it to others
-  socket.on('typing', function(room) {
+  socket.on('typing', function (room) {
     if (!socket.authenticated) {
       return;
     }
@@ -329,7 +329,7 @@ io.on('connection', function(socket) {
   });
 
   // when the client emits 'stop typing', we broadcast it to others
-  socket.on('stop typing', function(room) {
+  socket.on('stop typing', function (room) {
     if (!socket.authenticated) {
       return;
     }
@@ -341,11 +341,11 @@ io.on('connection', function(socket) {
   });
 
   // when the user disconnects.. perform this
-  socket.on('disconnect', function() {
+  socket.on('disconnect', function () {
     if (socket.authenticated) {
       Presence.remove(socket.id);
 
-      Presence.list(function(users) {
+      Presence.list(function (users) {
         // echo globally (all clients) that a person has left
         socket.broadcast.emit('user left', {
           username: socket.username,
